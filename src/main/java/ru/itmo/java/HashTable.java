@@ -3,7 +3,7 @@ package ru.itmo.java;
 import java.util.Objects;
 
 public class HashTable {
-    static int HASH_INTERVAL;
+    static int HASH_INTERVAL = 13;
     static final int DEFAULT_INITIAL_CAPACITY = 16;
     static final float DEFAULT_LOAD_FACTOR = 0.5f;
     static final int MAXIMUM_CAPACITY = 1 << 30;
