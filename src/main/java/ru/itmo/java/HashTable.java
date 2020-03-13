@@ -3,7 +3,7 @@ package ru.itmo.java;
 import java.util.Objects;
 
 public class HashTable {
-    static final int HASH_INTERVAL = 13;
+    static int HASH_INTERVAL;
     static final int DEFAULT_INITIAL_CAPACITY = 16;
     static final float DEFAULT_LOAD_FACTOR = 0.5f;
     static final int MAXIMUM_CAPACITY = 1 << 30;
@@ -84,25 +84,29 @@ public class HashTable {
         int hash = Objects.hashCode(key);
         int reusableBucketIndex = -1;
 
-        int i;
-        for (i = 0; table[mod(hash + HASH_INTERVAL * i, capacity)] != null; i++) {
+        int i = 0;
+        int hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+        while (table[hashIndex] != null) {
             if (i > MAXIMUM_CAPACITY) {
                 throw new RuntimeException("Infinite collisions or no space to put one more entry");
             }
 
-            if (reusableBucketIndex == -1 && table[mod(hash + HASH_INTERVAL * i, capacity)].isReusable()) {
-                reusableBucketIndex = mod(hash + HASH_INTERVAL * i, capacity);
+            if (reusableBucketIndex == -1 && table[hashIndex].isReusable()) {
+                reusableBucketIndex = hashIndex;
             }
 
-            if (Objects.equals(table[mod(hash + HASH_INTERVAL * i, capacity)].getKey(), key)) {
-                Object oldValue = table[mod(hash + HASH_INTERVAL * i, capacity)].getValue();
-                table[mod(hash + HASH_INTERVAL * i, capacity)].setValue(value);
+            if (Objects.equals(table[hashIndex].getKey(), key)) {
+                Object oldValue = table[hashIndex].getValue();
+                table[hashIndex].setValue(value);
                 return oldValue;
             }
+
+            i++;
+            hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
         }
 
-        int putBucketIndex = (reusableBucketIndex == -1) ? mod(hash + HASH_INTERVAL * i, capacity)
-                : reusableBucketIndex;
+        int putBucketIndex = (reusableBucketIndex == -1) ? hashIndex
+                                                         : reusableBucketIndex;
         table[putBucketIndex] = new Entry(key, value);
 
         if (++size > threshold) {
@@ -115,15 +119,19 @@ public class HashTable {
     Object get(Object key) {
         int hash = Objects.hashCode(key);
 
-        int i;
-        for (i = 0; table[mod(hash + HASH_INTERVAL * i, capacity)] != null; i++) {
+        int i = 0;
+        int hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+        while (table[hashIndex] != null) {
             if (i > MAXIMUM_CAPACITY) {
                 return null;
             }
 
-            if (Objects.equals(table[mod(hash + HASH_INTERVAL * i, capacity)].getKey(), key)) {
-                return table[mod(hash + HASH_INTERVAL * i, capacity)].getValue();
+            if (Objects.equals(table[hashIndex].getKey(), key)) {
+                return table[hashIndex].getValue();
             }
+
+            i++;
+            hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
         }
 
         return null;
@@ -132,18 +140,22 @@ public class HashTable {
     Object remove(Object key) {
         int hash = Objects.hashCode(key);
 
-        int i;
-        for (i = 0; table[mod(hash + HASH_INTERVAL * i, capacity)] != null; i++) {
+        int i = 0;
+        int hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+        while (table[hashIndex] != null) {
             if (i > MAXIMUM_CAPACITY) {
                 return null;
             }
 
-            if (Objects.equals(table[mod(hash + HASH_INTERVAL * i, capacity)].getKey(), key)) {
-                Object oldValue = table[mod(hash + HASH_INTERVAL * i, capacity)].getValue();
-                table[mod(hash + HASH_INTERVAL * i, capacity)].makeReusable();
+            if (Objects.equals(table[hashIndex].getKey(), key)) {
+                Object oldValue = table[hashIndex].getValue();
+                table[hashIndex].makeReusable();
                 --size;
                 return oldValue;
             }
+
+            i++;
+            hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
         }
 
         return null;
