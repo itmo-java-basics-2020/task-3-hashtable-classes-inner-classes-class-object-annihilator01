@@ -72,11 +72,11 @@ public class HashTable {
         this.size = 0;
         this.capacity = initialCapacity;
         this.loadFactor = loadFactor;
-        this.threshold = (int) Math.ceil(capacity * loadFactor);
+        this.threshold = (int) (capacity * loadFactor);
         this.table = new Entry[initialCapacity];
     }
 
-    private int mod(int x, int y) {
+    private int posMod(int x, int y) {
         return Math.floorMod(x, y);
     }
 
@@ -85,9 +85,9 @@ public class HashTable {
         int reusableBucketIndex = -1;
 
         int i = 0;
-        int hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+        int hashIndex = posMod(hash + HASH_INTERVAL * i, capacity);
         while (table[hashIndex] != null) {
-            if (i > MAXIMUM_CAPACITY) {
+            if (i > capacity) {
                 throw new RuntimeException("Infinite collisions or no space to put one more entry");
             }
 
@@ -102,7 +102,7 @@ public class HashTable {
             }
 
             i++;
-            hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+            hashIndex = posMod(hash + HASH_INTERVAL * i, capacity);
         }
 
         int putBucketIndex = (reusableBucketIndex == -1) ? hashIndex
@@ -120,9 +120,9 @@ public class HashTable {
         int hash = Objects.hashCode(key);
 
         int i = 0;
-        int hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+        int hashIndex = posMod(hash + HASH_INTERVAL * i, capacity);
         while (table[hashIndex] != null) {
-            if (i > MAXIMUM_CAPACITY) {
+            if (i > capacity) {
                 return null;
             }
 
@@ -131,7 +131,7 @@ public class HashTable {
             }
 
             i++;
-            hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+            hashIndex = posMod(hash + HASH_INTERVAL * i, capacity);
         }
 
         return null;
@@ -141,9 +141,9 @@ public class HashTable {
         int hash = Objects.hashCode(key);
 
         int i = 0;
-        int hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+        int hashIndex = posMod(hash + HASH_INTERVAL * i, capacity);
         while (table[hashIndex] != null) {
-            if (i > MAXIMUM_CAPACITY) {
+            if (i > capacity) {
                 return null;
             }
 
@@ -155,7 +155,7 @@ public class HashTable {
             }
 
             i++;
-            hashIndex = mod(hash + HASH_INTERVAL * i, capacity);
+            hashIndex = posMod(hash + HASH_INTERVAL * i, capacity);
         }
 
         return null;
@@ -170,7 +170,7 @@ public class HashTable {
         Entry[] oldTable = table;
 
         int newCapacity = oldCapacity * 2;
-        int newThreshold = (int) Math.ceil(newCapacity * loadFactor);
+        int newThreshold = (int) (capacity * loadFactor);
         Entry[] newTable = new Entry[newCapacity];
 
         capacity = newCapacity;
