@@ -9,9 +9,9 @@ public class HashTable {
     static final int MAXIMUM_CAPACITY = 1 << 30;
 
     static class Entry {
-        Object key;
-        Object value;
-        boolean isReusable;
+        private Object key;
+        private Object value;
+        private boolean isReusable;
 
         Entry(Object key, Object value) {
             this.key = key;
